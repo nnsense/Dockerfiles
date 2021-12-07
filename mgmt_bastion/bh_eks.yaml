@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bastionhost
+  namespace: default
+  labels:
+    app: bastionhost
+spec:
+  # serviceAccountName: gsdb-sa
+  containers:
+  - name: bh
+    image: nnsense/mgmt_bastionhost
+    command: [ "/bin/bash", "-c", "--" ]
+    args: [ "sleep infinity" ]
+
+    env:
+    - name: AWS_ACCESS_KEY_ID
+      value: $AWS_ACCESS_KEY_ID
+    - name: AWS_SECRET_ACCESS_KEY
+      value: $AWS_SECRET_ACCESS_KEY
+
+    volumeMounts:
+    - name: ssh-key-volume
+      mountPath: "/etc/id_rsa.nodes" # Mounted into etc because mount is read-only and /root/.ssh should be writable
+    - name: bh-volume
+      mountPath: "/data" # Path into the pod
+
+  volumes:
+  - name: ssh-key-volume
+    secret:
+      secretName: nodes-ssh-key # A key must be created before running `kubectl create secret generic nodes-ssh-key --from-file=/root/.ssh/id_rsa`
+      defaultMode: 0600
+  - name: bh-volume
+    persistentVolumeClaim:
+      claimName: bh-volume-claim
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bh-volume-claim
+  labels:
+    app: bastionhost
+spec:
+  storageClassName: gp2
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

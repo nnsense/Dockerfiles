@@ -12,8 +12,8 @@ bash=5.1.0-r0 \
 jq=1.6-r1 \
 git=2.30.2-r0 \
 openssh-client=8.4_p1-r3 \
-curl=7.74.0-r1 \
-binutils=2.35.1-r1 \
+curl=7.76.1-r0 \
+binutils=2.35.2-r0 \
 xmlstarlet=1.6.1-r0
 
 SHELL ["/bin/bash", "-c"]
